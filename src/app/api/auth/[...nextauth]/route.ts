@@ -18,13 +18,21 @@ export async function GET(request: NextRequest) {
   try {
     return await handlers.GET(request);
   } catch (error: unknown) {
-    console.error('NextAuth GET error:', error);
+    console.error('❌ NextAuth GET error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Environment check:', {
+      hasAUTH_SECRET: !!process.env.AUTH_SECRET,
+      hasNEXTAUTH_URL: !!process.env.NEXTAUTH_URL,
+      hasDATABASE_URL: !!process.env.DATABASE_URL,
+      nodeEnv: process.env.NODE_ENV,
+      vercelUrl: process.env.VERCEL_URL,
+    });
+    
     const url = new URL('/login', request.url);
     url.searchParams.set('error', 'Configuration');
     
-    if (!process.env.AUTH_SECRET) {
-      url.searchParams.set('message', 'AUTH_SECRET environment variable is not set');
-    }
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    url.searchParams.set('message', encodeURIComponent(errorMessage));
     
     return NextResponse.redirect(url);
   }
@@ -34,15 +42,33 @@ export async function POST(request: NextRequest) {
   try {
     return await handlers.POST(request);
   } catch (error: unknown) {
-    console.error('NextAuth POST error:', error);
+    console.error('❌ NextAuth POST error:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Environment check:', {
+      hasAUTH_SECRET: !!process.env.AUTH_SECRET,
+      hasNEXTAUTH_URL: !!process.env.NEXTAUTH_URL,
+      hasDATABASE_URL: !!process.env.DATABASE_URL,
+      nodeEnv: process.env.NODE_ENV,
+      vercelUrl: process.env.VERCEL_URL,
+    });
+    
     const errorMessage = error instanceof Error ? error.message : 'Authentication configuration error';
+    
+    // Provide more specific error message
+    let userMessage = errorMessage;
+    if (!process.env.AUTH_SECRET) {
+      userMessage = 'AUTH_SECRET environment variable is not set. Please add it to Vercel environment variables.';
+    } else if (!process.env.DATABASE_URL) {
+      userMessage = 'DATABASE_URL environment variable is not set. Please check your database configuration.';
+    } else if (errorMessage.includes('Prisma') || errorMessage.includes('database')) {
+      userMessage = 'Database connection error. Please check your DATABASE_URL configuration.';
+    }
     
     return NextResponse.json(
       { 
         error: 'Configuration',
-        message: !process.env.AUTH_SECRET
-          ? 'AUTH_SECRET environment variable is not set. Please add it to Vercel environment variables.'
-          : errorMessage
+        message: userMessage,
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
       },
       { status: 500 }
     );

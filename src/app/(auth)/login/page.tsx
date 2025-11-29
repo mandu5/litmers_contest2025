@@ -65,6 +65,9 @@ function LoginForm() {
   const getErrorMessage = (error: string | null) => {
     if (!error) return null;
     
+    // Get message from URL params if available
+    const messageParam = searchParams.get('message');
+    
     // Handle NextAuth error codes
     switch (error) {
       case 'OAuthAccountNotLinked':
@@ -72,7 +75,11 @@ function LoginForm() {
       case 'CredentialsSignin':
         return 'Email or password is incorrect';
       case 'Configuration':
-        return 'Authentication configuration error. Please contact support.';
+        // Return specific message if available, otherwise generic error
+        if (messageParam) {
+          return decodeURIComponent(messageParam);
+        }
+        return 'Authentication configuration error. Please check Vercel environment variables (AUTH_SECRET, DATABASE_URL).';
       case 'AccessDenied':
         return 'Access denied. Please check your account status.';
       case 'Verification':
@@ -84,14 +91,18 @@ function LoginForm() {
         if (error.includes('Email or password is incorrect')) {
           return 'Email or password is incorrect';
         }
-        if (error.includes('configuration')) {
-          return 'Authentication configuration error. Please contact support.';
+        if (error.includes('configuration') || error.includes('Configuration')) {
+          return messageParam 
+            ? decodeURIComponent(messageParam)
+            : 'Authentication configuration error. Please check your environment variables.';
         }
         if (error.includes('Password change')) {
           return error;
         }
-        // Return a more user-friendly message for unknown errors
-        return 'An error occurred during sign in. Please try again or contact support.';
+        // Return the error message if it's specific, otherwise generic
+        return error.length > 100 
+          ? 'An error occurred during sign in. Please try again.'
+          : error;
     }
   };
 
@@ -109,6 +120,14 @@ function LoginForm() {
             <div className="mb-6 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <span>{getErrorMessage(formError || error)}</span>
+            </div>
+          )}
+          
+          {/* Show message parameter if Configuration error */}
+          {error === 'Configuration' && searchParams.get('message') && (
+            <div className="mb-4 rounded-lg bg-yellow-50 p-3 text-xs text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400">
+              <p className="font-medium">Debug Info:</p>
+              <p className="mt-1">{decodeURIComponent(searchParams.get('message') || '')}</p>
             </div>
           )}
 

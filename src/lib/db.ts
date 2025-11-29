@@ -14,6 +14,22 @@ if (!process.env.DATABASE_URL) {
   console.error('2. Add DATABASE_URL with your PostgreSQL connection string');
   console.error('   Format: postgresql://user:password@host:port/database?pgbouncer=true');
   // Don't throw here - let Prisma handle it with a more descriptive error
+} else {
+  // Check if using wrong port (5432 instead of 6543 for Connection Pooler)
+  const dbUrl = process.env.DATABASE_URL;
+  if (process.env.NODE_ENV === 'production' && dbUrl.includes(':5432')) {
+    console.error('⚠️ WARNING: DATABASE_URL is using port 5432 (direct connection).');
+    console.error('For Vercel/serverless, you must use Connection Pooler (port 6543).');
+    console.error('Current URL:', dbUrl.replace(/:[^:@]+@/, ':****@')); // Hide password
+    console.error('');
+    console.error('Fix steps:');
+    console.error('1. Go to Supabase Dashboard → Settings → Database');
+    console.error('2. Select "Connection pooling" tab (NOT "Connection string")');
+    console.error('3. Select "Session mode"');
+    console.error('4. Copy the URI (should have port 6543)');
+    console.error('5. Update DATABASE_URL in Vercel to use port 6543');
+    console.error('6. Format: postgresql://postgres.PROJECT_ID:password@...pooler.supabase.com:6543/postgres?pgbouncer=true');
+  }
 }
 
 const globalForPrisma = globalThis as unknown as {

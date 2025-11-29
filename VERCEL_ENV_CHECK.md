@@ -22,7 +22,8 @@
 
 - `NEXTAUTH_URL`
   - 값: `https://litmers-contest2025-gp64.vercel.app`
-  - 또는 실제 배포된 URL
+  - ⚠️ **중요**: `localhost`로 설정하지 마세요! 프로덕션 URL로 설정해야 합니다.
+  - 또는 `trustHost: true`가 설정되어 있으므로 이 변수를 삭제해도 자동 감지됩니다.
 
 - `DATABASE_URL`
   - PostgreSQL 연결 문자열
@@ -64,7 +65,11 @@
 
 ### 로컬에서는 작동하는데 프로덕션에서만 에러가 나는 경우
 
-- 로컬의 `.env.local` 파일을 확인
+- 로컬의 `.env.local` 파일을 확인 (이것은 로컬 전용입니다)
+- **Vercel 환경 변수에서 `NEXTAUTH_URL`이 `localhost`로 설정되어 있지 않은지 확인**
+  - ❌ 잘못된 설정: `NEXTAUTH_URL=http://localhost:3000`
+  - ✅ 올바른 설정: `NEXTAUTH_URL=https://litmers-contest2025-gp64.vercel.app`
+  - 또는 `NEXTAUTH_URL` 변수를 삭제하면 `trustHost: true`가 자동으로 감지합니다
 - Vercel에 동일한 환경 변수들이 설정되어 있는지 확인
 - 특히 `AUTH_SECRET`과 `NEXTAUTH_URL`이 제대로 설정되어 있는지 확인
 

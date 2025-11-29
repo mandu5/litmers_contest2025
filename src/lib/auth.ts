@@ -12,6 +12,14 @@ import Google from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import { db } from './db';
 
+// Get the correct base URL for NextAuth
+// trustHost will auto-detect, but we should validate NEXTAUTH_URL if set
+const nextAuthUrl = process.env.NEXTAUTH_URL;
+if (nextAuthUrl && nextAuthUrl.includes('localhost')) {
+  console.warn('⚠️ NEXTAUTH_URL contains localhost. This will cause issues in production.');
+  console.warn('Please set NEXTAUTH_URL to your production URL in Vercel environment variables.');
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(db),
@@ -23,7 +31,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/login',
     error: '/login',
   },
-  trustHost: true, // Trust Vercel's proxy
+  trustHost: true, // Trust Vercel's proxy - will auto-detect URL if NEXTAUTH_URL not set
   debug: process.env.NODE_ENV === 'development', // Enable debug in development
   providers: [
     Google({

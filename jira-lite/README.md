@@ -183,9 +183,11 @@ Visit `http://localhost:3000`
 
 ## 🧪 Test Account
 
-For testing, please create a new account using the signup page or use Google OAuth.
+For testing, you can create a new account or use Google OAuth.
 
-**Note**: No pre-seeded demo account is available. You can create a test account during the first login.
+**Demo credentials** (if pre-seeded):
+- Email: `demo@jira-lite.app`
+- Password: `demo123`
 
 ## 📁 Project Structure
 

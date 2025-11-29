@@ -12,33 +12,8 @@ import Google from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
 import { db } from './db';
 
-// Validate required environment variables at runtime
-function getAuthSecret(): string {
-  const secret = process.env.AUTH_SECRET;
-  if (!secret) {
-    console.error('AUTH_SECRET environment variable is not set');
-    throw new Error('AUTH_SECRET environment variable is not set. Please check your Vercel environment variables.');
-  }
-  return secret;
-}
-
-// Get NEXTAUTH_URL with fallback
-function getNextAuthUrl(): string | undefined {
-  if (process.env.NEXTAUTH_URL) {
-    return process.env.NEXTAUTH_URL;
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL;
-  }
-  console.warn('NEXTAUTH_URL is not set. Using fallback.');
-  return undefined;
-}
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: getAuthSecret(),
+  secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(db),
   session: {
     strategy: 'jwt',
@@ -49,6 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: '/login',
   },
   trustHost: true, // Trust Vercel's proxy
+  debug: process.env.NODE_ENV === 'development', // Enable debug in development
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID || '',

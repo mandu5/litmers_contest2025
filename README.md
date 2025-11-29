@@ -16,6 +16,7 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
 ## ✨ Features
 
 ### Authentication
+
 - ✅ Email/Password sign up and login
 - ✅ Google OAuth integration
 - ✅ Password reset with email verification
@@ -24,6 +25,7 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
 - ✅ Account deletion with soft delete
 
 ### Team Management
+
 - ✅ Create and manage teams
 - ✅ Invite members via email with actual email sending
 - ✅ Role-based access (OWNER/ADMIN/MEMBER)
@@ -32,6 +34,7 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
 - ✅ Member kick/leave functionality
 
 ### Project Management
+
 - ✅ Create projects within teams (max 15 per team)
 - ✅ Project descriptions with markdown support
 - ✅ Archive/restore projects
@@ -40,6 +43,7 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
 - ✅ Custom statuses with WIP limits
 
 ### Issue Management
+
 - ✅ Create issues with title, description, assignee, due date, priority, labels
 - ✅ Kanban board with drag-and-drop
 - ✅ Issue status: Backlog, In Progress, Done (+ custom)
@@ -49,6 +53,7 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
 - ✅ Search and filtering
 
 ### AI Features (Powered by OpenAI)
+
 - ✅ AI Summary generation (2-4 sentences)
 - ✅ AI Solution suggestions
 - ✅ AI Auto-label recommendations
@@ -58,17 +63,20 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
 - ✅ Caching with automatic invalidation
 
 ### Comments
+
 - ✅ Add, edit, delete comments
 - ✅ Paginated comment list
 - ✅ Permission-based deletion
 
 ### Dashboard & Statistics
+
 - ✅ Personal dashboard with assigned issues
 - ✅ Project dashboard with stats
 - ✅ Team statistics with charts
 - ✅ Due date tracking
 
 ### Notifications
+
 - ✅ In-app notifications
 - ✅ Mark as read (individual/all)
 - ✅ Notification triggers for:
@@ -79,6 +87,7 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
   - Role changes
 
 ### UI/UX
+
 - ✅ Modern, responsive design
 - ✅ Dark/Light mode support
 - ✅ Loading states
@@ -102,7 +111,8 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
 ## 📦 Installation
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - PostgreSQL database (or use Supabase/Neon)
 - Google OAuth credentials
 - OpenAI API key
@@ -111,22 +121,26 @@ Jira Lite is a lightweight, AI-powered issue tracking web application built for 
 ### Setup
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/your-repo/jira-lite.git
 cd jira-lite
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 3. **Set up environment variables**
+
 ```bash
 cp .env.example .env
 ```
 
 Edit `.env` with your credentials:
+
 ```env
 # Database
 DATABASE_URL="postgresql://..."
@@ -151,12 +165,14 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 4. **Initialize database**
+
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
 5. **Run development server**
+
 ```bash
 npm run dev
 ```
@@ -173,6 +189,7 @@ Visit `http://localhost:3000`
 4. Deploy!
 
 ### Environment Variables for Production
+
 - `DATABASE_URL` - Production PostgreSQL connection string
 - `AUTH_SECRET` - Generate with `openssl rand -base64 32`
 - `NEXTAUTH_URL` - Your production URL
@@ -217,17 +234,20 @@ jira-lite/
 ## 🔑 API Endpoints
 
 ### Authentication
+
 - `POST /api/auth/signup` - Create account
 - `POST /api/auth/request-reset` - Request password reset
 - `POST /api/auth/reset-password` - Reset password
 
 ### Profile
+
 - `GET /api/profile` - Get profile
 - `PUT /api/profile` - Update profile
 - `DELETE /api/profile` - Delete account
 - `PUT /api/profile/password` - Change password
 
 ### Teams
+
 - `GET /api/teams` - List teams
 - `POST /api/teams` - Create team
 - `GET /api/teams/[teamId]` - Get team
@@ -239,6 +259,7 @@ jira-lite/
 - `GET /api/teams/[teamId]/activity` - Activity log
 
 ### Projects
+
 - `GET /api/projects` - List projects
 - `POST /api/projects` - Create project
 - `GET /api/projects/[projectId]` - Get project
@@ -251,6 +272,7 @@ jira-lite/
 - `GET /api/projects/[projectId]/issues` - Get issues
 
 ### Issues
+
 - `GET /api/issues/[issueId]` - Get issue
 - `PUT /api/issues/[issueId]` - Update issue
 - `DELETE /api/issues/[issueId]` - Delete issue
@@ -261,29 +283,32 @@ jira-lite/
 - `POST /api/issues/[issueId]/ai` - AI features
 
 ### AI
+
 - `POST /api/ai` - AI features (labels, duplicates)
 
 ### Notifications
+
 - `GET /api/notifications` - Get notifications
 - `PUT /api/notifications` - Mark as read
 
 ### Dashboard
+
 - `GET /api/dashboard` - Dashboard data
 
 ## 📝 Data Limits
 
-| Item | Limit |
-|------|-------|
-| Projects per team | 15 |
-| Issues per project | 200 |
-| Subtasks per issue | 20 |
-| Labels per project | 20 |
-| Labels per issue | 5 |
-| Custom statuses | 5 |
-| Comment length | 1000 chars |
+| Item               | Limit      |
+| ------------------ | ---------- |
+| Projects per team  | 15         |
+| Issues per project | 200        |
+| Subtasks per issue | 20         |
+| Labels per project | 20         |
+| Labels per issue   | 5          |
+| Custom statuses    | 5          |
+| Comment length     | 1000 chars |
 | Description length | 5000 chars |
-| AI requests/minute | 10 |
-| AI requests/day | 100 |
+| AI requests/minute | 10         |
+| AI requests/day    | 100        |
 
 ## 🎨 Design Decisions
 

@@ -6,54 +6,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handlers } from '@/lib/auth';
 
-// Wrap handlers with error handling
-const { GET: originalGET, POST: originalPOST } = handlers;
+// Validate environment variables
+if (!process.env.AUTH_SECRET) {
+  console.error('⚠️ CRITICAL: AUTH_SECRET is not set in environment variables.');
+  console.error('Please add AUTH_SECRET to your Vercel project settings:');
+  console.error('1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables');
+  console.error('2. Add AUTH_SECRET with value from: openssl rand -base64 32');
+}
 
 export async function GET(request: NextRequest) {
   try {
-    return await originalGET(request);
+    return await handlers.GET(request);
   } catch (error: unknown) {
     console.error('NextAuth GET error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Authentication configuration error';
+    const url = new URL('/login', request.url);
+    url.searchParams.set('error', 'Configuration');
     
-    // Check if it's a configuration error
-    if (errorMessage.includes('AUTH_SECRET') || errorMessage.includes('configuration')) {
-      return NextResponse.json(
-        { 
-          error: 'Configuration',
-          message: 'Authentication configuration error. Please check environment variables (AUTH_SECRET, NEXTAUTH_URL).' 
-        },
-        { status: 500 }
-      );
+    if (!process.env.AUTH_SECRET) {
+      url.searchParams.set('message', 'AUTH_SECRET environment variable is not set');
     }
     
-    return NextResponse.json(
-      { error: 'Configuration', message: errorMessage },
-      { status: 500 }
-    );
+    return NextResponse.redirect(url);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    return await originalPOST(request);
+    return await handlers.POST(request);
   } catch (error: unknown) {
     console.error('NextAuth POST error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Authentication configuration error';
     
-    // Check if it's a configuration error
-    if (errorMessage.includes('AUTH_SECRET') || errorMessage.includes('configuration')) {
-      return NextResponse.json(
-        { 
-          error: 'Configuration',
-          message: 'Authentication configuration error. Please check environment variables (AUTH_SECRET, NEXTAUTH_URL).' 
-        },
-        { status: 500 }
-      );
-    }
-    
     return NextResponse.json(
-      { error: 'Configuration', message: errorMessage },
+      { 
+        error: 'Configuration',
+        message: !process.env.AUTH_SECRET
+          ? 'AUTH_SECRET environment variable is not set. Please add it to Vercel environment variables.'
+          : errorMessage
+      },
       { status: 500 }
     );
   }

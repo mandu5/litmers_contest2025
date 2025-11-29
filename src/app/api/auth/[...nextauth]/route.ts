@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     });
     
     const errorMessage = error instanceof Error ? error.message : 'Authentication configuration error';
+    const errorStack = error instanceof Error ? error.stack : '';
     
     // Provide more specific error message
     let userMessage = errorMessage;
@@ -60,6 +61,11 @@ export async function POST(request: NextRequest) {
       userMessage = 'AUTH_SECRET environment variable is not set. Please add it to Vercel environment variables.';
     } else if (!process.env.DATABASE_URL || errorMessage.includes('DATABASE_URL') || errorMessage.includes('Environment variable not found')) {
       userMessage = 'DATABASE_URL environment variable is not set in Vercel. Please add it to Settings → Environment Variables.';
+    } else if (errorMessage.includes(':5432') || errorStack.includes(':5432')) {
+      // Specific error for port 5432 (direct connection instead of pooler)
+      userMessage = 'Database connection error: Using port 5432. Please update DATABASE_URL to use Connection Pooler (port 6543) in Vercel. See QUICK_FIX_PORT_5432.md for instructions.';
+    } else if (errorMessage.includes('Can\'t reach database server') || errorMessage.includes('database server')) {
+      userMessage = 'Database connection error. Please check DATABASE_URL uses Connection Pooler (port 6543, not 5432).';
     } else if (errorMessage.includes('Prisma') || errorMessage.includes('database')) {
       userMessage = 'Database connection error. Please check your DATABASE_URL configuration.';
     }

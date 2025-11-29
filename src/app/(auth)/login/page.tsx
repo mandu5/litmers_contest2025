@@ -77,7 +77,12 @@ function LoginForm() {
       case 'Configuration':
         // Return specific message if available, otherwise generic error
         if (messageParam) {
-          return decodeURIComponent(messageParam);
+          const decoded = decodeURIComponent(messageParam);
+          // Check for port 5432 error
+          if (decoded.includes('5432') || decoded.includes('port 6543')) {
+            return decoded + ' Update DATABASE_URL in Vercel Settings → Environment Variables to use port 6543 (Connection Pooler).';
+          }
+          return decoded;
         }
         return 'Authentication configuration error. Please check Vercel environment variables (AUTH_SECRET, DATABASE_URL).';
       case 'AccessDenied':
@@ -92,9 +97,15 @@ function LoginForm() {
           return 'Email or password is incorrect';
         }
         if (error.includes('configuration') || error.includes('Configuration')) {
-          return messageParam 
-            ? decodeURIComponent(messageParam)
-            : 'Authentication configuration error. Please check your environment variables.';
+          if (messageParam) {
+            const decoded = decodeURIComponent(messageParam);
+            // Check for port 5432 error
+            if (decoded.includes('5432') || decoded.includes('port 6543')) {
+              return decoded + ' Update DATABASE_URL in Vercel Settings → Environment Variables to use port 6543 (Connection Pooler).';
+            }
+            return decoded;
+          }
+          return 'Authentication configuration error. Please check your environment variables.';
         }
         if (error.includes('Password change')) {
           return error;

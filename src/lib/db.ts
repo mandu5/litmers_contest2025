@@ -36,8 +36,36 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// Helper function to ensure DATABASE_URL has pgbouncer=true parameter
+function ensurePgBouncerConfig(dbUrl: string): string {
+  try {
+    const url = new URL(dbUrl);
+    // Add pgbouncer=true if not present
+    if (!url.searchParams.has('pgbouncer')) {
+      url.searchParams.set('pgbouncer', 'true');
+    }
+    // Ensure connection_limit is set for serverless
+    if (!url.searchParams.has('connection_limit')) {
+      url.searchParams.set('connection_limit', '1');
+    }
+    return url.toString();
+  } catch {
+    // If URL parsing fails, return original
+    return dbUrl;
+  }
+}
+
+const dbUrl = process.env.DATABASE_URL 
+  ? ensurePgBouncerConfig(process.env.DATABASE_URL)
+  : process.env.DATABASE_URL;
+
 export const db = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  datasources: {
+    db: {
+      url: dbUrl,
+    },
+  },
 });
 
 if (process.env.NODE_ENV !== 'production') {

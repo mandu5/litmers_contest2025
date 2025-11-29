@@ -58,8 +58,8 @@ export async function POST(request: NextRequest) {
     let userMessage = errorMessage;
     if (!process.env.AUTH_SECRET) {
       userMessage = 'AUTH_SECRET environment variable is not set. Please add it to Vercel environment variables.';
-    } else if (!process.env.DATABASE_URL) {
-      userMessage = 'DATABASE_URL environment variable is not set. Please check your database configuration.';
+    } else if (!process.env.DATABASE_URL || errorMessage.includes('DATABASE_URL') || errorMessage.includes('Environment variable not found')) {
+      userMessage = 'DATABASE_URL environment variable is not set in Vercel. Please add it to Settings → Environment Variables.';
     } else if (errorMessage.includes('Prisma') || errorMessage.includes('database')) {
       userMessage = 'Database connection error. Please check your DATABASE_URL configuration.';
     }
